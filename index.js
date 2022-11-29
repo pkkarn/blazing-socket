@@ -21,6 +21,6 @@ app.get('/', (req, res) => {res.send({
     msg: 'hello world'
 })})
 
-server.listen(443, () => {
+server.listen(process.env.PORT || 3000, () => {
     console.log('listening on port')
 })
