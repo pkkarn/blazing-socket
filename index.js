@@ -6,6 +6,7 @@ const chatHandler = require('./handlers/chatHandlers')
 const blazingHandler = require('./handlers/blazingHandler')
 const Blaze = require('./Blaze')
 const io = require('socket.io')(server)
+require('dotenv').config()
 
 const game = new Blaze.BlazingBoard([]);
 
