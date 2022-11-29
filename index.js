@@ -5,11 +5,7 @@ const welcomHandler = require('./handlers/welcomeHandlers')
 const chatHandler = require('./handlers/chatHandlers')
 const blazingHandler = require('./handlers/blazingHandler')
 const Blaze = require('./Blaze')
-const io = require('socket.io')(server, {
-    cors: {
-        origin: '*',
-      }
-})
+const io = require('socket.io')(server)
 
 const game = new Blaze.BlazingBoard([]);
 
