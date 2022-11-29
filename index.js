@@ -5,8 +5,11 @@ const welcomHandler = require('./handlers/welcomeHandlers')
 const chatHandler = require('./handlers/chatHandlers')
 const blazingHandler = require('./handlers/blazingHandler')
 const Blaze = require('./Blaze')
-const io = require('socket.io')(server)
-require('dotenv').config()
+const io = require('socket.io')(server, {
+    cors: {
+        origin: '*',
+      }
+})
 
 const game = new Blaze.BlazingBoard([]);
 
@@ -22,6 +25,6 @@ app.get('/', (req, res) => {res.send({
     msg: 'hello world'
 })})
 
-server.listen(process.env.PORT || 3000, () => {
+server.listen(4200, () => {
     console.log('listening on port')
 })
