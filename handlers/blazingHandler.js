@@ -1,4 +1,5 @@
 const Blaze = require('../Blaze')
+const rooms = require('../room')
 
 function responseBoard (game) {
     let boardCopy = {}
@@ -24,40 +25,68 @@ function responseBoard (game) {
     };
 }
 
+function resolveGame(room) {
+    if(games[room]) {
+        return games[room]
+    }
+    games[room] = new Blaze.BlazingBoard([])
+    return games[room];
+}
+
 // players_detail
 let players = {};
+let games = {};
 
-module.exports = (io, client, game) => {
-    console.log(client.id, responseBoard(game),'Blazing client added')
-    
+module.exports = (io, client) => {
     // whent client starts_game
-    client.on('start_game', ({ username }) => {
-        game.addPlayer(username)
-        players[client.id] = username
+    client.on('start_game', ({username, room}) => {
+        console.log(username, room)
+        client.join(room)
+        // Resolve Game if already available
+        let game = resolveGame(room);
 
-        io.emit('add_player', {
+        console.log(game)
+
+        game.addPlayer(username)
+        players[client.id] = {username, room}
+        io.to(room).emit('add_player', {
             game: responseBoard(game),
             username
         });
+
+        rooms[room].members.push(username)
+
+        console.log(games)
     })
+
     client.on('disconnect', () => {
-        game.removePlayer(players[client.id])
-        io.emit('remove_player', {
-            game: responseBoard(game),
-        });
+        console.log('pkkarn', client.id)
+        if(!players[client.id]) return; 
+        let room = players[client.id].room
+        let username = players[client.id].username
+        let game = resolveGame(room);
+        if(game) {
+            game.removePlayer(username)
+            io.to(room).emit('remove_player', {
+                game: responseBoard(game),
+            });
+        }
     })
 
-    client.on('set_card', (data) => {
+    client.on('set_card', ({ data, room }) => {
+        let game = resolveGame(room);
         game.setCard(data.card, data.pos, data?.color)
-        io.emit('update_board', responseBoard(game))
+        io.to(room).emit('update_board', responseBoard(game))
     })
 
-    client.on('get_card', () => {
+    client.on('get_card', (room) => {
+        let game = resolveGame(room);
         game.fetchCard();
-        io.emit('update_board', responseBoard(game))
+        io.to(room).emit('update_board', responseBoard(game))
     })
-    client.on('pass_card', () => {
+    client.on('pass_card', (room) => {
+        let game = resolveGame(room);
         game.pass();
-        io.emit('update_board', responseBoard(game))
+        io.to(room).emit('update_board', responseBoard(game))
     })
 }
