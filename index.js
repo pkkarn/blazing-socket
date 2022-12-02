@@ -11,12 +11,10 @@ const io = require('socket.io')(server, {
       }
 })
 
-const game = new Blaze.BlazingBoard([]);
-
 function onSocketConnection(client) {
     welcomHandler(io, client);
     chatHandler(io, client);
-    blazingHandler(io, client, game)
+    blazingHandler(io, client)
 }
 
 io.on('connection', onSocketConnection)

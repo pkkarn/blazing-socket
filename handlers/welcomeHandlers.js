@@ -1,4 +1,7 @@
+const room = require('../room')
+
 module.exports = (io, client) => {
+    client.emit('load_room', Object.keys(room).map(i => ({id: i, name: room[i].name, members: []})))
     client.on('group', (data) => {
         console.log(data)
 
